@@ -1,0 +1,178 @@
+*unite-quickrun_config.txt*	quickrun.vim で使用する type を unite.vim で選択するための unite-source です。
+
+
+==============================================================================
+概要						*unite-quickrun_config-introduction*
+
+|unite-quickrun_config| は |unite.vim| を使用して、現在の filetype の
+|:QuickRun| で呼び出される |quickrun_config| を設定するための
+|unite-sources| になります、
+
+
+-必要なプラグイン
+unite.vim    - github : https://github.com/Shougo/unite.vim
+quickrun.vim - github : https://github.com/thinca/vim
+
+
+|quickrun| では |quickrun_config| を使用して複数の設定を記述する事が出来ます。
+
+>
+	" C++ のコンパイラの設定を記述
+	let g:quickrun_config = {
+	\ 'cpp/clang++': {
+	\   'command': 'clang++',
+	\   'exec': ['%c %o %s -o %s:p:r', '%s:p:r %a'],
+	\   'tempfile': '%{tempname()}.cpp',
+	\   'hook/sweep/files': ['%S:p:r'],
+	\ },
+	\ 'cpp/g++': {
+	\   'command': 'g++',
+	\   'exec': ['%c %o %s -o %s:p:r', '%s:p:r %a'],
+	\   'tempfile': '%{tempname()}.cpp',
+	\   'hook/sweep/files': '%S:p:r',
+	\ },
+	\ 'cpp/vc': {
+	\   'command': 'cl',
+	\   'exec': ['%c %o %s /nologo /Fo%s:p:r.obj /Fe%s:p:r.exe > nul',
+	\            '%s:p:r.exe %a'],
+	\   'tempfile': '%{tempname()}.cpp',
+	\   'hook/sweep/files': ['%S:p:r.exe', '%S:p:r.obj'],
+	\ },
+	}
+	
+	" cpp/clang++ の設定を参照して QuickRun を行う
+	:QuickRun -type cpp/clang++
+
+	" gcc でコンパイルする場合は -type の引数を変更するだけ
+	:QuickRun -type cpp/g++
+<
+
+
+また、上記のように |:QuickRun| コマンドで -type オプションを指定する以外にも次
+のように |quickrun_config| に type を設定する事で |:QuickRun| 時に使用される設
+定を決めることも出来ます。
+
+
+>
+	" filetype=cpp の場合に呼ばれる type を設定
+	let g:quickrun_config.cpp.type = "cpp/clang++"
+	
+	" filetype=cpp の場合に -type を設定しなければ cpp/clang++ が呼ばれる
+	:QuickRun
+
+	" バッファローカルな quickrun_config
+	let b:quickrun_config.type = "cpp/g++"
+
+	" g:quickrun_config.cpp.type よりも
+	" b:quickrun_config.type が優先され為
+	" cpp/g++ が呼ばれる
+	:QuickRun
+<
+
+
+|unite-quickrun_config| は g:quickrun_config.{filetype}.type や
+b:quickrun_config.type の値を直接変更する事で、|:QuickRun| 時に呼び出される
+type を設定します。
+
+
+==============================================================================
+使い方						*unite-quickrun_config-usage*
+
+|unite-quickrun_config| を使用するためには |quickrun_config| を次のような
+フォーマットにする必要があります。
+
+
+>
+	" g:quickrun_config のキーを
+	"
+	" {filetype}/clang++
+	"
+	" のように 『filetype/』 を prefix して設定しておく必要があります。
+	let g:quickrun_config = {
+	\ 'cpp/clang++': {
+	\   'command': 'clang++',
+	\   'exec': ['%c %o %s -o %s:p:r', '%s:p:r %a'],
+	\   'tempfile': '%{tempname()}.cpp',
+	\   'hook/sweep/files': ['%S:p:r'],
+	\ },
+	\ 'cpp/g++': {
+	\   'command': 'g++',
+	\   'exec': ['%c %o %s -o %s:p:r', '%s:p:r %a'],
+	\   'tempfile': '%{tempname()}.cpp',
+	\   'hook/sweep/files': '%S:p:r',
+	\ },
+	\ 'cpp/vc': {
+	\   'command': 'cl',
+	\   'exec': ['%c %o %s /nologo /Fo%s:p:r.obj /Fe%s:p:r.exe > nul',
+	\            '%s:p:r.exe %a'],
+	\   'tempfile': '%{tempname()}.cpp',
+	\   'hook/sweep/files': ['%S:p:r.exe', '%S:p:r.obj'],
+	\ },
+	}
+	
+	" cpp/clang++ の設定を参照して QuickRun を行う
+	:QuickRun -type cpp/clang++
+<
+
+
+これは、|quickrun_config| から filetype に対応した設定を取得するために必要な
+フォーマットになります。
+このフォーマットでない場合は、|unite_quickrun_config| でうまく列挙が行われませ
+ん。
+
+
+unite.vim の呼び出し >
+	" quickrun_config を呼び出して、使用する設定を決める
+	:Unite quickrun_config
+
+	" 設定した type で :QuickRun が行われる
+	" この時に -type を渡す必要はない
+	:QuickRun
+<
+
+
+また、実際に Vim で使用している動画を上げているので、操作風景はそちらを参照
+して下さい。
+
+http://youtu.be/dciwKZKBNt8 - YouTube
+
+
+
+==============================================================================
+インターフェース				*unite-quickrun_config-interface*
+
+------------------------------------------------------------------------------
+unite-actions					*unite-quickrun_config-actions*
+
+set_local_quickrun_config			*unite-quickrun_config-set_local_quickrun_config*
+
+選択した設定を b:quickrun_config.type に設定します。
+|unite_quickrun_config| のデフォルトアクションになります。
+
+
+set_global_quickrun_config			*unite-quickrun_config-set_global_quickrun_config*
+
+選択した設定を g:quickrun_config.{filetype}.type に設定します。
+これを使用した場合、g:quickrun_config が直接変更されるので注意して下さい。
+また、すでに b:quickrun_config.type が設定されているのであれば、こちらで
+g:quickrun_config の設定を変更しても b:quickrun_config.type の方が優先されてし
+まい設定が反映されないので注意して下さい。
+
+
+==============================================================================
+設定						*unite-quickrun_config-setting*
+
+
+------------------------------------------------------------------------------
+unite-quickrun の変数				*unite-quickrun_config-variables*
+
+g:unite_quickrun_config_selected_prefix		*g:unite_quickrun_config_selected_prefix*
+	|unite.vim| で現在の quickrun_config のマークとして使用します。
+
+Default: >
+	let g:unite_quickrun_config_selected_prefix = "> "
+<
+
+
+==============================================================================
+vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
