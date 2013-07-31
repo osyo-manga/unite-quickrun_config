@@ -1,5 +1,8 @@
 
 function! Powerline#Segments#quickrun#config_type()
+	if !exists("*unite#sources#quickrun_config#config_type")
+		return "not found"
+	endif
 	let type = unite#sources#quickrun_config#config_type()
 	return empty(type) ? "not found" : type
 endfunction
