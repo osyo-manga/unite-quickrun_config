@@ -41,8 +41,10 @@ function! s:main_gather_candidates(args, context)
 	return sort(values(map(cmds, '{
 \		"abbr"           : v:key == now_type ? (prefix . v:key) : (prefix_space . v:key),
 \		"word"           : v:key,
+\		"kind" : "command",
 \		"action__config" : v:key,
 \		"action__filetype" : filetype,
+\		"action__command" : ":QuickRun " . v:key,
 \	}')))
 endfunction
 
