@@ -6,7 +6,7 @@ let g:unite_quickrun_config_selected_prefix =
 
 
 function! unite#sources#quickrun_config#quickrun_config_all()
-	return copy(extend(copy(g:quickrun#default_config), get(g:, "quickrun_config", {})))
+	return copy(extend(copy(get(g:, "quickrun#default_config", {})), get(g:, "quickrun_config", {})))
 endfunction
 
 function! s:quickrun_config_type_filetype(filetype)
